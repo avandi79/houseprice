@@ -1,92 +1,67 @@
-import matplotlib.pyplot as plt
-import pylab as pl
-import numpy as np
-import pandas as pd
-df = pd.read_csv("housePrice.csv")
-df.head()
-display(df.dtypes)
-print("total number:", len(df))
-## cleaning Area columns 
-df['Area'] = (
-    df['Area']
-    .astype(str)
-    .str.strip()
-    .str.replace(',', '', regex = False)
-)
-df['Area'] = pd.to_numeric(df['Area'], errors='coerce').astype('Int64')
-print("max area in before cleaning :", df['Area'].max())
-print("len of before:", len(df))
-df = df[(df['Area'] > 0) & (df['Area'] <= 500)].reset_index(drop=True)
-print("max area in after cleaning:", df['Area'].max())
-print("len of clean:", len(cdf))
-## cleaning address column  
-addr = df['Address'].astype('string')
-suspect = addr[~addr.str.contains(r'[A-Za-z0-9]', na=False)]
-print( "rows with empty/missing value:", len(suspect))
-print(suspect.map(repr).head(30))    
-df = df.dropna(subset=['Address']).reset_index(drop=True)
-print(df['Address'].isna().sum())
-print(len(df))
-## make a new copy
-clean_df = df.copy()
-clean_df.describe()
-## Encoding Address 
-len(clean_df['Address'].unique())
-vc = clean_df['Address'].value_counts()
-print(vc.head(10))
-print(vc.tail(10))
-threshold = 30
-top_addrs = vc[vc >= threshold].index
-print(len(top_addrs))
-clean_df['Address_g']=np.where(
-    clean_df['Address'].isin(top_addrs),
-    clean_df['Address'],
-    'Others'
-)
-print(clean_df['Address_g'].value_counts())
-print(clean_df['Address_g'].unique())
-num_features = ['Area','Room','Parking','Warehouse','Elevator']
-X_num = clean_df[features].astype(float)
-X_addr = pd.get_dummies(
-    clean_df['Address_g'],
-    prefix='addr',
-    drop_first=True,
-)
-X_encoded = pd.concat([X_num, X_addr], axis=1)
-y = clean_df['Price']
-print(X_encoded.shape)
-print(X_encoded.dtypes.unique())    
-X_model = X_encoded.astype(float).copy()
-print(X_model.dtypes.unique()) 
-## Drawing histograms 
-viz = clean_df[['Room','Price','Area','Address']]
-viz.hist(figsize=(8,8))
-plt.show()
-## Making plot
-plt.figure(figsize=(8,6))
-plt.scatter(clean_df['Area'], clean_df['Price'], color='purple')
-plt.xlabel('Area')
-plt.ylabel('Price')
-plt.grid(True)
-plt.xlim(0,600)
-## Spilt dataset
+# House Price Prediction Using Linear Regression
 
-from sklearn.model_selection import train_test_split
+## Overview
+This project focuses on the analysis and prediction of residential house prices using structured real estate data. The objective is to explore the relationship between property characteristics and market price through data preprocessing, exploratory data analysis, feature engineering, and regression modeling.
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X_model,
-    y,
-    test_size = 0.20,
-    random_state=42,
-)
-print(X_train.shape)
-print(X_test.shape)
-## modelling 
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score, root_mean_squared_error
+The study demonstrates a complete data-driven workflow, from raw data cleaning to model evaluation, following reproducible and transparent analytical practices.
 
-model = LinearRegression()
-model.fit(X_train, y_train)
-y_predict = model.predict(X_test)
-print("R2: ", r2_score(y_test,y_predict))
-print("RMSE: ", root_mean_squared_error(y_test,y_predict))
+## Dataset
+The dataset contains residential housing records with the following attributes:
+- Area (square meters)
+- Number of rooms
+- Parking availability
+- Warehouse availability
+- Elevator availability
+- Address (location-based categorical feature)
+- Price (target variable)
+
+After data cleaning, the final dataset consists of **3,433 observations**.
+
+## Data Preprocessing
+Key preprocessing steps include:
+- Cleaning and converting the `Area` column from string to numeric format
+- Removing invalid or unrealistic area values
+- Handling missing values in the `Address` column
+- Filtering out inconsistent records
+- Creating a clean analytical dataset for modeling
+
+## Feature Engineering
+- Numerical features: Area, Room count, Parking, Warehouse, Elevator
+- Categorical feature encoding: Address encoded using one-hot encoding
+- Final feature matrix contains 33 numerical predictors
+
+## Exploratory Data Analysis
+- Distribution analysis using histograms
+- Scatter plot visualization to examine the relationship between area and price
+- Identification of price dispersion across different property sizes
+
+## Modeling Approach
+A Linear Regression model was implemented using scikit-learn:
+- Dataset split into training (80%) and testing (20%) subsets
+- Model trained on numerical and encoded categorical features
+- Performance evaluated using R² score and Root Mean Squared Error (RMSE)
+
+## Results
+- **R² Score:** ~0.69
+- **RMSE:** ~3.7 × 10⁹ (local currency units)
+
+The results indicate a strong linear relationship between property features and housing prices, while also highlighting the limitations of linear models in capturing extreme price variations.
+
+## Tools & Technologies
+- Python
+- Pandas
+- NumPy
+- Matplotlib
+- Scikit-learn
+- Jupyter Notebook
+
+## Reproducibility
+To run the project:
+1. Clone the repository
+2. Install required libraries
+3. Open `houseprice.ipynb` in Jupyter Notebook
+4. Execute cells sequentially
+
+## Author
+Fatemeh Naghdi 
+
